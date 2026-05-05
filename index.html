@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CRM UniFECAF Porto Alegre</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{
+    --bg:#ffffff;--bg2:#f5f5f5;--bg3:#eeeeee;
+    --text:#1a1a1a;--text2:#666666;--text3:#999999;
+    --border:#e0e0e0;--border2:#cccccc;
+    --blue:#1a73e8;--blue-bg:#e8f0fe;--blue-text:#1a5cb8;
+    --green:#2e7d32;--green-bg:#e8f5e9;--green-text:#1b5e20;
+    --amber:#e65100;--amber-bg:#fff3e0;--amber-text:#bf360c;
+    --red:#c62828;--red-bg:#ffebee;--red-text:#b71c1c;
+    --teal:#00695c;--teal-bg:#e0f2f1;--teal-text:#004d40;
+    --purple:#4527a0;--purple-bg:#ede7f6;--purple-text:#311b92;
+    --radius:10px;--radius-lg:14px;
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg2);color:var(--text);max-width:430px;margin:0 auto;min-height:100vh}
+  .topbar{background:var(--bg);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .topbar-title{font-size:16px;font-weight:600;color:var(--text)}
+  .topbar-sub{font-size:12px;color:var(--text3);margin-top:1px}
+  .screen{display:none;padding:16px;padding-bottom:90px}
+  .screen.active{display:block}
+  .section-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin:20px 0 10px}
+  .metric-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .metric{background:var(--bg);border-radius:var(--radius);padding:14px;border:1px solid var(--border)}
+  .metric-label{font-size:11px;color:var(--text3);margin-bottom:4px}
+  .metric-value{font-size:26px;font-weight:700;color:var(--text)}
+  .metric-sub{font-size:11px;color:var(--text3);margin-top:2px}
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:10px}
+  .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .card-name{font-size:14px;font-weight:600;color:var(--text)}
+  .card-info{font-size:13px;color:var(--text2);margin-bottom:3px}
+  .card-note{font-size:12px;color:var(--text3)}
+  .badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap}
+  .badge-blue{background:var(--blue-bg);color:var(--blue-text)}
+  .badge-green{background:var(--green-bg);color:var(--green-text)}
+  .badge-amber{background:var(--amber-bg);color:var(--amber-text)}
+  .badge-red{background:var(--red-bg);color:var(--red-text)}
+  .badge-gray{background:var(--bg3);color:var(--text2)}
+  .progress-bar{height:7px;background:var(--bg3);border-radius:4px;margin:8px 0;overflow:hidden}
+  .progress-fill{height:7px;border-radius:4px;transition:width .4s}
+  .fill-green{background:#43a047}
+  .fill-amber{background:#fb8c00}
+  .fill-red{background:#e53935}
+  .fill-blue{background:var(--blue)}
+  .btn{display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;padding:10px 16px;border-radius:var(--radius);cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text);width:100%;margin-top:8px;transition:background .15s}
+  .btn:active{background:var(--bg3)}
+  .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .btn-primary:active{background:#1558b0}
+  .btn-danger{background:var(--red-bg);color:var(--red-text);border-color:#ef9a9a}
+  .divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+  .avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+  .av0{background:var(--blue-bg);color:var(--blue-text)}
+  .av1{background:var(--teal-bg);color:var(--teal-text)}
+  .av2{background:var(--amber-bg);color:var(--amber-text)}
+  .av3{background:var(--purple-bg);color:var(--purple-text)}
+  .form-group{margin-bottom:14px}
+  .form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block}
+  input,select,textarea{width:100%;font-size:15px;padding:11px 13px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none;font-family:inherit}
+  input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,232,.15)}
+  textarea{min-height:76px;resize:none}
+  .tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg);border-top:1px solid var(--border);display:flex;padding:8px 0 env(safe-area-inset-bottom,12px);z-index:100}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 0}
+  .tab-icon{font-size:20px;line-height:1}
+  .tab-label{font-size:10px;font-weight:600;color:var(--text3)}
+  .tab.active .tab-label{color:var(--blue)}
+  .tab-dot{width:4px;height:4px;border-radius:50%;background:transparent;margin-top:2px}
+  .tab.active .tab-dot{background:var(--blue)}
+  .filter-row{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;-ms-overflow-style:none;scrollbar-width:none}
+  .filter-row::-webkit-scrollbar{display:none}
+  .filter-chip{font-size:12px;font-weight:600;padding:6px 14px;border-radius:99px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;white-space:nowrap}
+  .filter-chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .empty{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px;line-height:1.6}
+  .pace-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:10px}
+  .pace-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .pace-name{font-size:15px;font-weight:600;color:var(--text)}
+  .pace-sub{font-size:12px;color:var(--text2);margin-top:2px}
+  .pace-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .pace-stat{background:var(--bg2);border-radius:var(--radius);padding:10px;text-align:center}
+  .pace-stat-val{font-size:18px;font-weight:700;color:var(--text)}
+  .pace-stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;font-weight:500}
+  .pace-status{font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px}
+  .s-ok{background:var(--green-bg);color:var(--green-text)}
+  .s-ahead{background:var(--teal-bg);color:var(--teal-text)}
+  .s-late{background:var(--amber-bg);color:var(--amber-text)}
+  .s-crit{background:var(--red-bg);color:var(--red-text)}
+  .config-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px}
+  .config-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:4px 0}
+  .config-label{color:var(--text2)}
+  .config-val{font-weight:700;color:var(--text)}
+  .script-box{background:var(--bg2);border-radius:var(--radius);padding:12px;font-size:13px;color:var(--text2);line-height:1.7;margin-top:8px;border-left:3px solid var(--blue)}
+  .login-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:var(--bg)}
+  .login-logo{font-size:22px;font-weight:800;color:var(--blue);margin-bottom:4px}
+  .login-sub{font-size:13px;color:var(--text3);margin-bottom:32px}
+  .login-card{width:100%;max-width:340px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px}
+  .login-title{font-size:16px;font-weight:700;margin-bottom:18px;color:var(--text)}
+  .loading{text-align:center;padding:60px 20px;color:var(--text3);font-size:14px}
+  .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .tag-online{display:inline-block;width:7px;height:7px;border-radius:50%;background:#43a047;margin-right:4px}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .alert-banner{background:var(--amber-bg);border:1px solid #ffcc02;border-radius:var(--radius);padding:10px 13px;font-size:13px;color:var(--amber-text);margin-bottom:14px;font-weight:500}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-wrap">
+  <div class="login-logo">UniFECAF POA</div>
+  <div class="login-sub">CRM Porto Alegre</div>
+  <div class="login-card">
+    <div class="login-title">Entrar</div>
+    <div class="form-group">
+      <label class="form-label">Você é</label>
+      <select id="login-vendedor">
+        <option value="">Selecione...</option>
+        <option value="Luiz">Luiz</option>
+        <option value="Chandler">Chandler</option>
+        <option value="Marcelo">Marcelo</option>
+        <option value="Maya">Maya</option>
+        <option value="Gestor">Gestor (visão completa)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Senha</label>
+      <input type="password" id="login-senha" placeholder="Digite a senha" onkeydown="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <div id="login-erro" style="font-size:13px;color:var(--red-text);margin-bottom:10px;display:none">Senha incorreta.</div>
+    <button class="btn btn-primary" onclick="fazerLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">UniFECAF Porto Alegre</div>
+      <div class="topbar-sub"><span class="tag-online"></span><span id="usuario-logado">Carregando...</span></div>
+    </div>
+    <button onclick="sair()" style="font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;color:var(--text2)">Sair</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen active" id="screen-dash">
+    <div style="height:16px"></div>
+    <div class="metric-row">
+      <div class="metric">
+        <div class="metric-label">Total matrículas</div>
+        <div class="metric-value" id="m-mat">0</div>
+        <div class="metric-sub">meta: 120 (4×30)</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Leads ativos</div>
+        <div class="metric-value" id="m-ativos">0</div>
+        <div class="metric-sub">em atendimento</div>
+      </div>
+    </div>
+    <div class="metric-row">
+      <div class="metric">
+        <div class="metric-label">Conversão geral</div>
+        <div class="metric-value" id="m-taxa">0%</div>
+        <div class="metric-sub">leads fechados</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Dias restantes</div>
+        <div class="metric-value" id="m-dias">—</div>
+        <div class="metric-sub">no mês</div>
+      </div>
+    </div>
+
+    <div class="section-label">Pace diário — meta 30 por vendedor</div>
+    <div class="config-box" id="pace-info"></div>
+    <div id="pace-vendedores"></div>
+
+    <div class="section-label">Funil geral</div>
+    <div class="card" id="dash-funil"></div>
+  </div>
+
+  <!-- LEADS -->
+  <div class="screen" id="screen-leads">
+    <div style="height:16px"></div>
+    <div id="meu-banner" style="display:none" class="alert-banner"></div>
+    <div class="filter-row" id="filtros"></div>
+    <div id="leads-list"><div class="loading"><div class="spinner"></div>Carregando leads...</div></div>
+    <button class="btn btn-primary" onclick="abrirNovoLead()">+ Novo lead</button>
+  </div>
+
+  <!-- SCRIPTS -->
+  <div class="screen" id="screen-scripts">
+    <div style="height:16px"></div>
+    <div class="section-label">Scripts prontos para usar</div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-name">Primeiro contato</div><span class="badge badge-blue">Abordagem</span></div>
+      <div class="script-box">"Oi [nome], tudo bem? Aqui é [vendedor] da UniFECAF Porto Alegre. Vi que você demonstrou interesse no curso de [curso]. Posso te contar em 2 minutinhos como funciona e tirar suas dúvidas?"</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-name">Vai pensar / sem resposta</div><span class="badge badge-amber">Follow-up</span></div>
+      <div class="script-box">"Oi [nome], tudo bem? Vi que você se interessou pelo [curso] aqui na UniFECAF POA. Queria entender: teve alguma dúvida que ficou? As turmas estão fechando e ainda tenho uma vaga reservada pra você."</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-name">Objeção de preço</div><span class="badge badge-red">Recuperação</span></div>
+      <div class="script-box">"Entendo sua preocupação com o investimento. Mas pensa comigo: com o diploma, sua progressão na carreira representa muito mais por mês. O curso se paga em menos de um ano. Posso te mostrar as condições de parcelamento?"</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-name">Progressão de carreira</div><span class="badge badge-blue">Abordagem</span></div>
+      <div class="script-box">"[Nome], com o diploma as portas abrem muito mais rápido. O curso é semipresencial — você estuda no seu ritmo, sem abrir mão do trabalho. Vários profissionais de Porto Alegre já estão matriculados."</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-name">Reativação fria</div><span class="badge badge-gray">Recuperação</span></div>
+      <div class="script-box">"Oi [nome]! Aqui é [vendedor] da UniFECAF Porto Alegre. Sei que a vida é corrida, mas queria te dar uma última chance antes de encerrar as vagas. Se não for o momento certo, tudo bem — mas se for, estou aqui."</div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-name">Urgência de fechamento</div><span class="badge badge-red">Urgência</span></div>
+      <div class="script-box">"[Nome], as turmas de [mês] fecham em [X] dias. Depois disso a próxima entrada só em [próximo mês]. Você quer começar agora ou esperar mais [X] meses para dar o próximo passo?"</div>
+    </div>
+  </div>
+
+  <!-- FORM LEAD -->
+  <div class="screen" id="screen-novo">
+    <div style="height:16px"></div>
+    <div class="section-label" id="form-titulo">Novo lead</div>
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">Nome completo *</label>
+        <input type="text" id="f-nome" placeholder="Ex: João Silva">
+      </div>
+      <div class="form-group">
+        <label class="form-label">WhatsApp</label>
+        <input type="tel" id="f-tel" placeholder="(51) 99999-9999">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Curso de interesse</label>
+        <select id="f-curso">
+          <option value="">Selecione...</option>
+          <option>Administração</option><option>Biomedicina</option>
+          <option>Contabilidade</option><option>Direito</option>
+          <option>Educação Física</option><option>Enfermagem</option>
+          <option>Farmácia</option><option>Gestão de RH</option>
+          <option>Logística</option><option>Pedagogia</option>
+          <option>Psicologia</option><option>Radiologia</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Origem do lead</label>
+        <select id="f-origem">
+          <option value="">Selecione...</option>
+          <option>Instagram / Tráfego pago</option>
+          <option>WhatsApp / Grupos</option>
+          <option>Indicação</option><option>Escola</option>
+          <option>Ação Empresa</option><option>Panfletagem</option>
+          <option>Site</option><option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group" id="f-vendedor-group">
+        <label class="form-label">Vendedor responsável</label>
+        <select id="f-vendedor">
+          <option value="">Selecione...</option>
+          <option>Luiz</option><option>Chandler</option>
+          <option>Marcelo</option><option>Maya</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select id="f-status">
+          <option>Novo</option>
+          <option>Em atendimento</option>
+          <option>Proposta enviada</option>
+          <option>Matriculado</option>
+          <option>Perdido</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Observação</label>
+        <textarea id="f-obs" placeholder="Ex: Vai pensar, ligar na sexta. Objeção foi preço."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="salvarLead()">Salvar lead</button>
+      <button class="btn" onclick="goTo('leads')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- DETALHE -->
+  <div class="screen" id="screen-detalhe">
+    <div style="height:16px"></div>
+    <div id="detalhe-content"></div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" id="tab-dash" onclick="goTo('dash')">
+      <div class="tab-icon">📊</div>
+      <div class="tab-dot"></div>
+      <div class="tab-label">Painel</div>
+    </div>
+    <div class="tab" id="tab-leads" onclick="goTo('leads')">
+      <div class="tab-icon">👥</div>
+      <div class="tab-dot"></div>
+      <div class="tab-label">Leads</div>
+    </div>
+    <div class="tab" id="tab-scripts" onclick="goTo('scripts')">
+      <div class="tab-icon">💬</div>
+      <div class="tab-dot"></div>
+      <div class="tab-label">Scripts</div>
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAzjieXvWJlrt43ZxVQrRdX6GJHNd7UIFs",
+  authDomain: "feroz-visita-b33ac.firebaseapp.com",
+  projectId: "feroz-visita-b33ac",
+  storageBucket: "feroz-visita-b33ac.firebasestorage.app",
+  messagingSenderId: "354329412737",
+  appId: "1:354329412737:web:caf789532ba6d293033980"
+};
+
+const fireApp = initializeApp(firebaseConfig);
+const db = getFirestore(fireApp);
+
+const SENHAS = { Luiz:'luiz123', Chandler:'chandler123', Marcelo:'marcelo123', Maya:'maya123', Gestor:'gestor2025' };
+const VENDEDORES = ['Luiz','Chandler','Marcelo','Maya'];
+const AV = ['av0','av1','av2','av3'];
+const META = 30;
+const BADGE = { 'Novo':'badge-blue','Em atendimento':'badge-amber','Proposta enviada':'badge-amber','Matriculado':'badge-green','Perdido':'badge-red' };
+
+let usuarioAtual = null;
+let leads = [];
+let editId = null;
+let filtroAtual = 'todos';
+let unsubscribe = null;
+
+window.fazerLogin = function(){
+  const v = document.getElementById('login-vendedor').value;
+  const s = document.getElementById('login-senha').value;
+  const erro = document.getElementById('login-erro');
+  if(!v){ erro.textContent='Selecione seu nome.'; erro.style.display='block'; return; }
+  if(SENHAS[v] !== s){ erro.style.display='block'; return; }
+  erro.style.display='none';
+  usuarioAtual = v;
+  sessionStorage.setItem('crm_user', v);
+  iniciarApp();
+};
+
+window.sair = function(){
+  sessionStorage.removeItem('crm_user');
+  usuarioAtual = null;
+  if(unsubscribe) unsubscribe();
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+};
+
+function iniciarApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('usuario-logado').textContent = usuarioAtual + (usuarioAtual==='Gestor'?' · acesso total':'');
+
+  if(usuarioAtual !== 'Gestor'){
+    document.getElementById('f-vendedor-group').style.display='none';
+  }
+
+  const q = query(collection(db,'leads_poa'), orderBy('criadoEm','desc'));
+  unsubscribe = onSnapshot(q, snap => {
+    leads = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderDash();
+    renderLeads();
+  });
+
+  renderFiltros();
+  goTo('dash');
+}
+
+const saved = sessionStorage.getItem('crm_user');
+if(saved){ usuarioAtual=saved; iniciarApp(); }
+
+function getDiasNoMes(){ const h=new Date(); return new Date(h.getFullYear(),h.getMonth()+1,0).getDate(); }
+function getDiaAtual(){ return new Date().getDate(); }
+function getDiasRestantes(){ const h=new Date(); return new Date(h.getFullYear(),h.getMonth()+1,0).getDate()-h.getDate()+1; }
+function getPaceEsperado(){ return parseFloat((META*getDiaAtual()/getDiasNoMes()).toFixed(1)); }
+function getPaceDiario(feitas){ const r=getDiasRestantes(); return r<=0?0:Math.ceil((META-feitas)/r); }
+
+function paceInfo(real,esp){
+  const d=real-esp;
+  if(d>=2) return {cls:'s-ahead',label:'Adiantado'};
+  if(d>=0) return {cls:'s-ok',label:'No ritmo'};
+  if(d>=-3) return {cls:'s-late',label:'Atrasado'};
+  return {cls:'s-crit',label:'Crítico'};
+}
+function fillCls(cls){
+  if(cls==='s-ahead'||cls==='s-ok') return 'fill-green';
+  if(cls==='s-late') return 'fill-amber';
+  return 'fill-red';
+}
+
+window.goTo = function(s){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('screen-'+s).classList.add('active');
+  const t=document.getElementById('tab-'+s);
+  if(t) t.classList.add('active');
+  if(s==='leads') renderLeads();
+};
+
+function sBadge(s){ return `<span class="badge ${BADGE[s]||'badge-gray'}">${s}</span>`; }
+
+function renderDash(){
+  const hoje=new Date();
+  const meses=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const mat=leads.filter(l=>l.status==='Matriculado').length;
+  const ativos=leads.filter(l=>['Novo','Em atendimento','Proposta enviada'].includes(l.status)).length;
+  const taxa=leads.length>0?Math.round(mat/leads.length*100):0;
+  const diasR=getDiasRestantes();
+  const esp=getPaceEsperado();
+
+  document.getElementById('m-mat').textContent=mat;
+  document.getElementById('m-ativos').textContent=ativos;
+  document.getElementById('m-taxa').textContent=taxa+'%';
+  document.getElementById('m-dias').textContent=diasR;
+
+  document.getElementById('pace-info').innerHTML=`
+    <div class="config-row"><span class="config-label">Hoje</span><span class="config-val">${hoje.getDate()} de ${getDiasNoMes()} de ${meses[hoje.getMonth()]}</span></div>
+    <div class="config-row"><span class="config-label">Deveria ter feito</span><span class="config-val">${esp} matrículas/vendedor</span></div>
+    <div class="config-row"><span class="config-label">Dias restantes</span><span class="config-val">${diasR} dias</span></div>`;
+
+  document.getElementById('pace-vendedores').innerHTML = VENDEDORES.map((v,i)=>{
+    const vl=leads.filter(l=>l.vendedor===v);
+    const vm=vl.filter(l=>l.status==='Matriculado').length;
+    const vt=vl.length>0?Math.round(vm/vl.length*100):0;
+    const pd=getPaceDiario(vm);
+    const pi=paceInfo(vm,esp);
+    const fc=fillCls(pi.cls);
+    const pct=Math.min(100,Math.round(vm/META*100));
+    const faltam=Math.max(0,META-vm);
+    const pdColor=pd>=3?'var(--red-text)':pd>=2?'var(--amber-text)':'var(--green-text)';
+    return `<div class="pace-card">
+      <div class="pace-header">
+        <div class="avatar ${AV[i]}">${v.substring(0,2).toUpperCase()}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="pace-name">${v}</span>
+            <span class="pace-status ${pi.cls}">${pi.label}</span>
+          </div>
+          <div class="pace-sub">${vm} de ${META} · ${pct}% da meta</div>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill ${fc}" style="width:${pct}%"></div></div>
+      <div class="pace-stats">
+        <div class="pace-stat"><div class="pace-stat-val">${vm}</div><div class="pace-stat-lbl">Feitas</div></div>
+        <div class="pace-stat"><div class="pace-stat-val">${faltam}</div><div class="pace-stat-lbl">Faltam</div></div>
+        <div class="pace-stat"><div class="pace-stat-val" style="color:${pdColor}">${pd}/dia</div><div class="pace-stat-lbl">Pace hoje</div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const statuses=['Novo','Em atendimento','Proposta enviada','Matriculado','Perdido'];
+  document.getElementById('dash-funil').innerHTML = statuses.map(s=>{
+    const n=leads.filter(l=>l.status===s).length;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:13px;color:var(--text2)">${s}</span>${sBadge(n+' lead'+(n===1?'':'s'))}</div>`;
+  }).join('');
+}
+
+function renderFiltros(){
+  const chips=['todos','Novo','Em atendimento','Proposta enviada','Matriculado','Perdido'];
+  const labels={'todos':'Todos','Novo':'Novos','Em atendimento':'Em atend.','Proposta enviada':'Proposta','Matriculado':'Matriculados','Perdido':'Perdidos'};
+  document.getElementById('filtros').innerHTML = chips.map(f=>
+    `<button class="filter-chip${f===filtroAtual?' active':''}" onclick="filtrar('${f}',this)">${labels[f]}</button>`
+  ).join('');
+}
+
+window.filtrar = function(f,btn){
+  filtroAtual=f;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderLeads();
+};
+
+function renderLeads(){
+  let lista = filtroAtual==='todos'?[...leads]:leads.filter(l=>l.status===filtroAtual);
+  if(usuarioAtual!=='Gestor'){
+    lista = lista.filter(l=>l.vendedor===usuarioAtual);
+    const meus=leads.filter(l=>l.vendedor===usuarioAtual&&l.status==='Matriculado').length;
+    const pd=getPaceDiario(meus);
+    const banner=document.getElementById('meu-banner');
+    if(pd>0){
+      banner.style.display='block';
+      banner.textContent=`Seu pace hoje: precisa fechar ${pd} matrícula${pd>1?'s':''}/dia para bater sua meta de ${META}.`;
+    } else {
+      banner.style.display='none';
+    }
+  }
+  const el=document.getElementById('leads-list');
+  if(lista.length===0){el.innerHTML='<div class="empty">Nenhum lead aqui ainda.<br>Cadastre o primeiro!</div>';return;}
+  el.innerHTML=lista.map(l=>`
+    <div class="card" onclick="verLead('${l.id}')" style="cursor:pointer">
+      <div class="card-header"><div class="card-name">${l.nome}</div>${sBadge(l.status)}</div>
+      <div class="card-info">${l.curso||'Curso não informado'} · ${l.origem||'Origem não informada'}</div>
+      <div class="card-note">${l.vendedor||'Sem vendedor'}${l.obs?' · '+l.obs.substring(0,45)+(l.obs.length>45?'...':''):''}</div>
+    </div>`).join('');
+}
+
+window.abrirNovoLead = function(){
+  editId=null;
+  document.getElementById('form-titulo').textContent='Novo lead';
+  ['f-nome','f-tel','f-obs'].forEach(id=>document.getElementById(id).value='');
+  ['f-curso','f-origem'].forEach(id=>document.getElementById(id).value='');
+  if(usuarioAtual!=='Gestor') document.getElementById('f-vendedor').value=usuarioAtual;
+  else document.getElementById('f-vendedor').value='';
+  document.getElementById('f-status').value='Novo';
+  goTo('novo');
+};
+
+window.salvarLead = async function(){
+  const nome=document.getElementById('f-nome').value.trim();
+  if(!nome){alert('Informe o nome do lead.');return;}
+  const vendedor = usuarioAtual!=='Gestor'?usuarioAtual:(document.getElementById('f-vendedor').value||'Não atribuído');
+  const lead={
+    nome, tel:document.getElementById('f-tel').value,
+    curso:document.getElementById('f-curso').value||'Não informado',
+    origem:document.getElementById('f-origem').value||'Não informado',
+    vendedor, status:document.getElementById('f-status').value,
+    obs:document.getElementById('f-obs').value,
+    data:new Date().toLocaleDateString('pt-BR'),
+    criadoEm: editId?undefined:serverTimestamp()
+  };
+  if(!editId) delete lead.criadoEm;
+  try{
+    if(editId){ await updateDoc(doc(db,'leads_poa',editId),lead); }
+    else { lead.criadoEm=serverTimestamp(); await addDoc(collection(db,'leads_poa'),lead); }
+    goTo('leads');
+  }catch(e){alert('Erro ao salvar: '+e.message);}
+};
+
+window.verLead = function(id){
+  const l=leads.find(x=>x.id===id);
+  if(!l) return;
+  const canEdit = usuarioAtual==='Gestor'||l.vendedor===usuarioAtual;
+  document.getElementById('detalhe-content').innerHTML=`
+    <div class="card">
+      <div class="card-header"><div class="card-name">${l.nome}</div>${sBadge(l.status)}</div>
+      <hr class="divider">
+      <div class="card-info" style="margin-bottom:6px">Curso: ${l.curso}</div>
+      <div class="card-info" style="margin-bottom:6px">Origem: ${l.origem}</div>
+      <div class="card-info" style="margin-bottom:6px">Vendedor: ${l.vendedor}</div>
+      <div class="card-info" style="margin-bottom:6px">Cadastrado: ${l.data}</div>
+      ${l.tel?`<div class="card-info" style="margin-bottom:6px">WhatsApp: <a href="https://wa.me/55${l.tel.replace(/\D/g,'')}" style="color:var(--blue)">${l.tel}</a></div>`:''}
+      ${l.obs?`<div style="background:var(--bg2);border-radius:var(--radius);padding:11px;font-size:13px;color:var(--text2);margin-top:8px;line-height:1.6">${l.obs}</div>`:''}
+      ${canEdit?`
+      <div class="form-group" style="margin-top:14px">
+        <label class="form-label">Atualizar status</label>
+        <select onchange="atualizarStatus('${id}',this.value)">
+          ${['Novo','Em atendimento','Proposta enviada','Matriculado','Perdido'].map(s=>`<option${l.status===s?' selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="row-2" style="margin-top:4px">
+        <button class="btn" onclick="editarLead('${id}')">Editar</button>
+        <button class="btn btn-danger" onclick="excluirLead('${id}')">Excluir</button>
+      </div>`:'<div style="font-size:12px;color:var(--text3);margin-top:12px;text-align:center">Somente o vendedor responsável pode editar.</div>'}
+      <button class="btn" style="margin-top:8px" onclick="goTo('leads')">Voltar</button>
+    </div>`;
+  goTo('detalhe');
+};
+
+window.atualizarStatus = async function(id,s){
+  try{ await updateDoc(doc(db,'leads_poa',id),{status:s}); }
+  catch(e){alert('Erro: '+e.message);}
+};
+
+window.editarLead = function(id){
+  const l=leads.find(x=>x.id===id);
+  if(!l) return;
+  editId=id;
+  document.getElementById('form-titulo').textContent='Editar lead';
+  document.getElementById('f-nome').value=l.nome;
+  document.getElementById('f-tel').value=l.tel||'';
+  document.getElementById('f-curso').value=l.curso;
+  document.getElementById('f-origem').value=l.origem;
+  if(usuarioAtual==='Gestor') document.getElementById('f-vendedor').value=l.vendedor;
+  document.getElementById('f-status').value=l.status;
+  document.getElementById('f-obs').value=l.obs||'';
+  goTo('novo');
+};
+
+window.excluirLead = async function(id){
+  if(!confirm('Excluir este lead definitivamente?')) return;
+  try{ await deleteDoc(doc(db,'leads_poa',id)); goTo('leads'); }
+  catch(e){alert('Erro: '+e.message);}
+};
+</script>
+</body>
+</html>
